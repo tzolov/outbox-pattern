@@ -1,0 +1,53 @@
+version: '2.1'
+services:
+  order-db:
+    image: debezium/example-postgres:${DEBEZIUM_VERSION}
+    ports:
+      - 5433:5432
+    healthcheck:
+      test: "pg_isready -U postgresuser -d orderdb"
+      interval: 2s
+      timeout: 20s
+      retries: 10
+    environment:
+      - POSTGRES_USER=postgresuser
+      - POSTGRES_PASSWORD=postgrespw
+      - POSTGRES_DB=orderdb
+      - PGPASSWORD=postgrespw
+  shipment-db:
+    image: debezium/example-postgres:${DEBEZIUM_VERSION}
+    ports:
+      - 5434:5432
+    healthcheck:
+      test: "pg_isready -U postgresuser -d shipmentdb"
+      interval: 2s
+      timeout: 20s
+      retries: 10
+    environment:
+      - POSTGRES_USER=postgresuser
+      - POSTGRES_PASSWORD=postgrespw
+      - POSTGRES_DB=shipmentdb
+      - PGPASSWORD=postgrespw
+  pgadmin:
+    container_name: pgadmin_container
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin4@pgadmin.org}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
+    volumes:
+      - ./servers.json:/pgadmin4/servers.json
+    ports:
+      - "${PGADMIN_PORT:-5050}:80"
+  app-import2:
+    image: springcloud/baseimage:1.0.0
+    container_name: outbox-app-import
+    depends_on:
+      - dataflow-server     
+    command: >
+      /bin/sh -c "
+        ./wait-for-it.sh -t 360 dataflow-server:9393;
+        wget -qO- 'http://dataflow-server:9393/apps/app/order-service/0.0.1-SNAPSHOT' --post-data='uri=docker:tzolov/order-service:0.0.1-SNAPSHOT';
+        wget -qO- 'http://dataflow-server:9393/apps/sink/shipment/0.0.2-SNAPSHOT' --post-data='uri=docker:tzolov/shipment-sink:0.0.2-SNAPSHOT';
+        wget -qO- 'http://dataflow-server:9393/apps/source/cdc-debezium/3.0.1-SNAPSHOT' --post-data='uri=docker:springcloudstream/cdc-debezium-source-kafka:3.0.1-SNAPSHOT';
+        wget --method=PUT -qO- 'http://dataflow-server:9393/apps/source/cdc-debezium/3.0.1-SNAPSHOT'; 
+        echo 'Docker Outbox apps imported'"

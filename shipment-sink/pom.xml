@@ -45,6 +45,13 @@
 		<dependencies>
 			<!-- (begin) managed dependencies -->
 			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>Hoxton.SR9</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
 				<groupId>org.springframework.integration</groupId>
 				<artifactId>spring-integration-bom</artifactId>
 				<version>${spring-integration.version}</version>
@@ -72,6 +79,13 @@
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
+			<dependency>
+				<groupId>com.wavefront</groupId>
+				<artifactId>wavefront-spring-boot-bom</artifactId>
+				<version>2.0.2</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
 			<!-- (end) managed dependencies -->
 		</dependencies>
 	</dependencyManagement>
@@ -83,7 +97,6 @@
 			<artifactId>outbox-service</artifactId>
 			<version>1.0.1-SNAPSHOT</version>
 		</dependency>
-
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -143,12 +156,12 @@
 			<artifactId>micrometer-registry-wavefront</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>io.micrometer</groupId>
-			<artifactId>micrometer-registry-influx</artifactId>
+			<groupId>com.wavefront</groupId>
+			<artifactId>wavefront-spring-boot-starter</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>io.micrometer</groupId>
-			<artifactId>micrometer-registry-datadog</artifactId>
+			<artifactId>micrometer-registry-influx</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>io.micrometer</groupId>
@@ -160,9 +173,8 @@
 			<version>${prometheus-rsocket-spring.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>com.wavefront</groupId>
-			<artifactId>wavefront-sdk-java</artifactId>
-			<version>${wavefront-sdk-java.version}</version>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-sleuth</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>io.pivotal.cfenv</groupId>
@@ -229,7 +241,7 @@
 						<image>springcloud/baseimage:1.0.0</image>
 					</from>
 					<to>
-						<image>springcloudstream/${project.artifactId}</image>
+						<image>tzolov/${project.artifactId}</image>
 						<tags>
 							<tag>${project.version}</tag>
 						</tags>
